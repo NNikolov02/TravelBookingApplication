@@ -109,7 +109,7 @@ public class BookingController {
         return result;
     }
 
-    @PutMapping(value = "/{personId}/starships")
+    @PutMapping(value = "/{bookingId}/flights")
     public BookingFlightsResponse setAllBookingFlights(@PathVariable String bookingId, @RequestBody SetFlightRequest flights) {
 
         Set<UUID>bookingFlights = bookingService.setBookingFlight(bookingId, flights.getSetFlights());
