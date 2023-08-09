@@ -16,41 +16,45 @@ import org.springframework.security.provisioning.JdbcUserDetailsManager;
 
 import javax.sql.DataSource;
 
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import javax.sql.DataSource;
+
+
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
 
-    @Autowired
-    private DataSource dataSource;
+        @Autowired
+        private DataSource dataSource;
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        JdbcUserDetailsManager usersManager = new JdbcUserDetailsManager(dataSource);
+        @Bean
+        public UserDetailsService userDetailsService() {
+            JdbcUserDetailsManager usersManager = new JdbcUserDetailsManager(dataSource);
 
-        UserDetails user = User.builder()
-                .username("ivan")
-                .password(passwordEncoder().encode("1a2345"))
-                .roles("ADMIN")
-                .build();
-        if (!usersManager.userExists("ivan")) {
-            usersManager.createUser(user);
+            UserDetails user = User.builder()
+                    .username("ivan")
+                    .password(passwordEncoder().encode("1a2345"))
+                    .roles("ADMIN")
+                    .build();
+            if (!usersManager.userExists("ivan")) {
+                usersManager.createUser(user);
+            }
+
+            return usersManager;
         }
 
-        return usersManager;
+        @Bean
+        public AuthenticationManager authenticationManagerBean(HttpSecurity http) throws Exception {
+            AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+            authenticationManagerBuilder.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
+            return authenticationManagerBuilder.build();
+        }
+
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+            return new BCryptPasswordEncoder();
+        }
+
     }
-
-    @Bean
-    public AuthenticationManager authenticationManagerBean(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
-        return authenticationManagerBuilder.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-}
-
 
